@@ -13968,7 +13968,7 @@ cr.getProjectModel = function() { return [
 				]
 ,				[
 					3,
-					2
+					4
 				]
 				]
 			]
@@ -14009,41 +14009,6 @@ cr.getProjectModel = function() { return [
 		"Game events",
 		[
 		[
-			0,
-			null,
-			false,
-			[
-			[
-				-1,
-				cr.system_object.prototype.cnds.OnLayoutStart,
-				null,
-				1,
-				false,
-				false,
-				false
-			]
-			],
-			[
-			[
-				9,
-				cr.plugins_.Text.prototype.acts.SetText,
-				null
-				,[
-				[
-					7,
-					[
-						20,
-						11,
-						cr.plugins_.FBComplete.prototype.exps.UserFullName,
-						true,
-						null
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
 			0,
 			null,
 			false,
