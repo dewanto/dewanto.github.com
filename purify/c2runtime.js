@@ -13943,7 +13943,7 @@ cr.getProjectModel = function() { return [
 				,[
 				[
 					3,
-					0
+					1
 				]
 ,				[
 					1,
@@ -14037,6 +14037,38 @@ cr.getProjectModel = function() { return [
 						cr.plugins_.FBComplete.prototype.exps.UserPicture,
 						true,
 						null
+					]
+				]
+				]
+			]
+			]
+		]
+,		[
+			0,
+			null,
+			false,
+			[
+			[
+				11,
+				cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn,
+				null,
+				1,
+				false,
+				false,
+				false
+			]
+			],
+			[
+			[
+				9,
+				cr.plugins_.Text.prototype.acts.SetText,
+				null
+				,[
+				[
+					7,
+					[
+						2,
+						"Logged on APP"
 					]
 				]
 				]
