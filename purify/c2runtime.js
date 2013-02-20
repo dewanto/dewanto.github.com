@@ -14535,37 +14535,17 @@ cr.getProjectModel = function() { return [
 			false,
 			[
 			[
-				4,
-				cr.plugins_.Touch.prototype.cnds.OnTouchObject,
+				11,
+				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
 				false,
 				false,
 				false
-				,[
-				[
-					4,
-					11
-				]
-				]
 			]
 			],
 			[
 			[
-				10,
-				cr.plugins_.Facebook2.prototype.acts.PublishScore,
-				null
-				,[
-				[
-					0,
-					[
-						0,
-						1000
-					]
-				]
-				]
-			]
-,			[
 				9,
 				cr.plugins_.Text.prototype.acts.SetText,
 				null
