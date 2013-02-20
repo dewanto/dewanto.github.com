@@ -10435,6 +10435,364 @@ cr.plugins_.Button = function(runtime)
 }());
 ;
 ;
+cr.plugins_.FBComplete = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.FBComplete.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	var fbRuntime = null;
+	var fbpicture = "";
+	var fbInst = null;
+	var fbScore = 0;
+	var scoreerror = "";
+	var storypostid = "";
+	var currentstatus = "unknown";
+        var fblogoutcheck =  true;
+	var gender = "";
+	var locale = "";
+	var link = "";
+	var username = "";
+	var thirdpartyid = "";
+	var fullnamename = "";
+	var firstname = "";
+	var lastname = "";
+	var fbStatus = "unknown";
+	var fbUserID = "";
+	var UserAccessToken = "";
+	var Auth_Response_Status = "";
+	var Init_App_ID = "";
+	var Init_Allow_Cookies = false;
+	var Init_Allow_Logging = false;
+	var Init_Fetch_Fresh_Status = false;
+	var Init_Parse_Xfbml = false;
+	var Init_Authresponse_Init = false;
+	var Init_Allow_Frictionless_Requests = false;
+	var UserAccessTokenExpiresIn = 0;
+	var UserSignedRequest = "";
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+				Init_App_ID = this.properties[0];
+				if(this.properties[1] == "Yes"){Init_Allow_Cookies = true;}
+		                if(this.properties[2] == "Yes"){Init_Allow_Logging = true;}
+		                if(this.properties[3] == "Yes"){Init_Fetch_Fresh_Status = true;}
+		                if(this.properties[4] == "Yes"){Init_Parse_Xfbml = true;}
+		                if(this.properties[5] == "Yes"){Init_Authresponse_Init = true;}
+		                if(this.properties[6] == "Yes"){Init_Allow_Frictionless_Requests = true;}
+				 fbRuntime = this.runtime;
+		                 fbInst = this;
+		window.fbAsyncInit = function() {
+    		var pname = location.pathname;
+		if (pname.substr(pname.length - 1) !== '/'){pname = pname.substr(0, pname.lastIndexOf('/') + 1);}
+    FB.init({
+      "appId"      : Init_App_ID, // App ID from the App Dashboard
+      "channelUrl" : '//' + location.hostname + pname + 'channel.html', // Channel File for x-domain communication
+      "status"     : Init_Fetch_Fresh_Status, // check the login status upon init?
+      "cookie"     : Init_Allow_Cookies, // set sessions cookies to allow your server to access the session?
+      "logging"    : Init_Allow_Logging,
+      "authResponse" :Init_Authresponse_Init,
+      "frictionlessRequests" :Init_Allow_Frictionless_Requests,
+      "hideFlashCallback" : null,
+      "xfbml"      : Init_Parse_Xfbml  // parse XFBML tags on this page?
+    });
+    FB.getLoginStatus(function(response) {
+     if (response["status"] == 'connected') {
+      fbStatus = "Validated User";
+       fbUserID = response["authResponse"]["userID"];
+       UserAccessToken = response["authResponse"]["accessToken"];
+       UserAccessTokenExpiresIn = response["authResponse"]["expiresIn"];
+       UserSignedRequest = response["authResponse"]["signedRequest"];
+       if(currentstatus != "Validated User"){currentstatus = "Validated User";fblogoutcheck = true;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn, fbInst);}
+      fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
+      }
+      else if (response["status"] == 'not_authorized') {
+       fbStatus = "Logged In No Install";
+       fbUserID = "";
+       UserAccessToken = "";
+       UserAccessTokenExpiresIn = 0;
+       UserSignedRequest = "";
+       if(currentstatus != "Logged In No Install"){currentstatus = "Logged In No Install";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnNotInstalled, fbInst);}
+       fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
+      } else if (response["status"] == 'unknown') {
+	fbStatus = "Not On Facebook";
+	fbUserID = "";
+       UserAccessToken = "";
+       UserAccessTokenExpiresIn = 0;
+       UserSignedRequest = "";
+       if(currentstatus != "Not On Facebook"){currentstatus = "Not On Facebook";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFacebookOut, fbInst);}
+       fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
+  }
+ }, true);
+  };
+  (function(d){
+				var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+				js = d.createElement('script'); js.id = id; js.async = true;
+				js.src = "//connect.facebook.net/en_US/all.js";
+				d.getElementsByTagName('head')[0].appendChild(js);
+			}(document));
+	};
+	instanceProto.draw = function(ctx)
+	{
+	};
+	instanceProto.drawGL = function (glw)
+	{
+	};
+	function Cnds() {};
+	Cnds.prototype.OnLoggedIn = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnNotInstalled = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnFacebookOut = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnAPILoaded = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnInfoReady = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.IsLoggedIn = function ()
+	{
+		return fblogoutcheck;
+	};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.UserLogin = function (response_Type, redirect_url,login_permissions,login_state,login_display)
+	{
+	 var oauth_url = 'https://www.facebook.com/dialog/oauth/';
+            oauth_url += '?client_id='+Init_App_ID;
+            oauth_url += '&redirect_uri=' + encodeURIComponent(redirect_url);
+            oauth_url += '&scope='+login_permissions;
+	    oauth_url += '&state='+login_state;
+	    if(login_display == 1){oauth_url += '&display=iframe';}
+	    else if(login_display == 2){oauth_url += '&display=page';}
+	    else if(login_display == 3){oauth_url += '&display=popup';}
+	    else if(login_display == 4){oauth_url += '&display=touch';}
+	    else if(login_display == 0){}
+	    if(response_Type == 0){oauth_url += '&response_type=token';}
+	    else if(response_Type == 1){oauth_url += '&response_type=code';}
+            window.top.location = oauth_url;
+	};
+	Acts.prototype.UpdateStatus = function ()
+	{
+		var fbRuntimea = this.runtime;
+		                var fbInsta = this;
+		FB.getLoginStatus(function(response) {
+     if (response["status"] == 'connected') {
+      fbStatus = "Validated User";
+       fbUserID = response["authResponse"]["userID"];
+       UserAccessToken = response["authResponse"]["accessToken"];
+       UserAccessTokenExpiresIn = response["authResponse"]["expiresIn"];
+       UserSignedRequest = response["authResponse"]["signedRequest"];
+       if(currentstatus != "Validated User"){currentstatus = "Validated User";fblogoutcheck = true;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn, fbInsta);}
+      } else if (response["status"] == 'not_authorized') {
+       fbStatus = "Logged In No Install";
+       fbUserID = "";
+       UserAccessToken = "";
+       UserAccessTokenExpiresIn = 0;
+       UserSignedRequest = "";
+       if(currentstatus != "Logged In No Install"){currentstatus = "Logged In No Install";fblogoutcheck = false;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnNotInstalled, fbInsta);}
+      } else if (response["status"] == 'unknown') {
+	fbStatus = "Not On Facebook";
+	fbUserID = "";
+       UserAccessToken = "";
+       UserAccessTokenExpiresIn = 0;
+       UserSignedRequest = "";
+       if(currentstatus != "Not On Facebook"){currentstatus = "Not On Facebook";fblogoutcheck = false;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFacebookOut, fbInsta);}
+           }
+          }, true);
+	};
+	Acts.prototype.UpdateBasicUser = function ()
+	{
+		var fbRuntimeb = this.runtime;
+		                var fbInstb = this;
+	 FB.api('/me', function(response) {
+		if(response["name"]){fullnamename = response["name"];}
+		else if(!response["name"]){fullnamename ="permissions";}// return our value
+		if(response["first_name"]){firstname = response["first_name"];}
+		else if(!response["first_name"]){firstname ="permissions";}// return our value
+		if(response["last_name"]){lastname = response["last_name"];}
+		else if(!response["last_name"]){lastname ="permissions";}// return our value
+		if(response["gender"]){gender = response["gender"];}
+		else if(!response["gender"]){gender ="permissions";}// return our value
+		if(response["locale"]){locale = response["locale"];}
+		else if(!response["locale"]){locale ="permissions";}// return our value
+		if(response["link"]){link = response["link"];}
+		else if(!response["link"]){link ="permissions";}// return our value
+		if(response["username"]){username = response["username"];}
+		else if(!response["username"]){username ="permissions";}// return our value
+		fbRuntimeb.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInstb);
+		});
+	 FB.api('/me?fields=third_party_id&access_token='+UserAccessToken, function (userData) {
+                if(userData["third_party_id"]){thirdpartyid = userData["third_party_id"];}
+		else if(!userData["third_party_id"]){thirdpartyid ="permissions";}// return our value
+                });
+	 FB.api('/me?fields=picture&redirect=false&access_token='+UserAccessToken, function (userData) {
+                if(userData["picture"]){fbpicture = userData["picture"]["data"]["url"];}
+		else if(!userData["picture"]){fbpicture =userData["error"]["message"]["url"];}// return our value
+                });
+	};
+	 Acts.prototype.FacebookLogout = function ()
+	{
+	 FB.logout(function(response) {
+           fblogoutcheck = false;
+          });
+	};
+	Acts.prototype.DeleteApp = function ()
+	{
+	 FB.api('/me/permissions?access_token='+UserAccessToken, 'delete', function(response) {
+          });
+	 fblogoutcheck = false;
+	};
+	Acts.prototype.PostStory = function (story,links,picture,sname,scaption,sto)
+	{
+	 var obj = {
+          method: 'feed',
+          link: links,
+          picture: picture,
+          name: sname,
+          caption: scaption,
+          description: story,
+	  to: sto,
+        };
+        function callback(response) {
+		if (response && response["post_id"]) {
+      storypostid = "Post was published.";
+    } else {
+      storypostid = "Post was not published.";
+    }
+        }
+        FB.ui(obj, callback);
+	};
+	Acts.prototype.PublishScore = function (score_)
+	{
+		FB.api('/me/scores?access_token='+UserAccessToken+'&score='+score_, function(response) {
+                 if (!response || response.error){
+			scoreerror = "Permissions";
+		 }
+		 else{scoreerror = "Success";}
+                });
+	};
+	Acts.prototype.RequestUserHiscore = function (appname)
+	{
+		FB.api('/me/scores?access_token='+UserAccessToken, 'GET', {}, function(response) {
+			fbScore = 0;
+			var arr = response["data"];
+			if (!arr)
+			{
+				scoreerror = "Request for user hi-score failed";
+				return;
+			}
+			var i, len;
+			for (i = 0, len = arr.length; i < len; i++)
+			{
+				if (arr[i]["application"]["namespace"] == appname && arr[i]["score"] > fbScore)
+					fbScore = arr[i]["score"];
+			}
+			if (!response || response.error) {
+			  scoreerror = "Permissions"
+		    } else {
+			  scoreerror = "Success";
+		    }
+		});
+	};
+	pluginProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.UserID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fbUserID);				// return our value
+	};
+	Exps.prototype.UserLoginStatus = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fbStatus);				// return our value
+	};
+	Exps.prototype.UserAccessTokenExpiresIn = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_int(UserAccessTokenExpiresIn);				// return our value
+	};
+	Exps.prototype.UserAccessToken = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(UserAccessToken);				// return our value
+	};
+	Exps.prototype.UserSignedRequest = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(UserSignedRequest);				// return our value
+	};
+	Exps.prototype.UserFullName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fullnamename);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserFirstName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(firstname);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserLastName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(lastname);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.ThirdPartyID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(thirdpartyid);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserGender = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(gender);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserLocale = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(locale);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserLink = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(thirdpartyid);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserUserName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(username);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.StoryFeedPostID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(storypostid);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.UserPicture = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fbpicture);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.ScoreError = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(scoreerror);// for ef_return_any, accepts either a number or string
+	};
+	Exps.prototype.Score = function (ret)
+	{
+		ret.set_int(fbScore);
+	};
+	pluginProto.exps = new Exps();
+}());
+;
+;
 cr.plugins_.Facebook2 = function(runtime)
 {
 	this.runtime = runtime;
@@ -13559,6 +13917,18 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
+		cr.plugins_.FBComplete,
+		true,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false
+	]
+,	[
 		cr.plugins_.Button,
 		false,
 		true,
@@ -13771,6 +14141,22 @@ cr.getProjectModel = function() { return [
 		false,
 		false,
 		[]
+	]
+,	[
+		"t12",
+		cr.plugins_.FBComplete,
+		false,
+		0,
+		0,
+		0,
+		null,
+		null,
+		[
+		],
+		false,
+		false,
+		[]
+		,["77",1,0,0,1,0,1]
 	]
 	],
 	[
@@ -14137,6 +14523,41 @@ cr.getProjectModel = function() { return [
 					[
 						0,
 						10
+					]
+				]
+				]
+			]
+			]
+		]
+,		[
+			0,
+			null,
+			false,
+			[
+			[
+				11,
+				cr.plugins_.Button.prototype.cnds.OnClicked,
+				null,
+				1,
+				false,
+				false,
+				false
+			]
+			],
+			[
+			[
+				9,
+				cr.plugins_.Text.prototype.acts.SetText,
+				null
+				,[
+				[
+					7,
+					[
+						20,
+						12,
+						cr.plugins_.FBComplete.prototype.exps.UserPicture,
+						true,
+						null
 					]
 				]
 				]
