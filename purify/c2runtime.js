@@ -13698,7 +13698,7 @@ cr.getProjectModel = function() { return [
 		false,
 		false,
 		[]
-		,["137460773081284",0,0,0,0,0,1]
+		,["77",1,0,0,1,0,1]
 	]
 	],
 	[
@@ -13866,55 +13866,6 @@ cr.getProjectModel = function() { return [
 			false,
 			[
 			[
-				-1,
-				cr.system_object.prototype.cnds.OnLayoutStart,
-				null,
-				1,
-				false,
-				false,
-				false
-			]
-			],
-			[
-			[
-				8,
-				cr.plugins_.Button.prototype.acts.SetEnabled,
-				null
-				,[
-				[
-					3,
-					0
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			[
-			],
-			[
-			[
-				8,
-				cr.plugins_.Button.prototype.acts.SetEnabled,
-				null
-				,[
-				[
-					3,
-					1
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			[
-			[
 				8,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
@@ -13926,49 +13877,38 @@ cr.getProjectModel = function() { return [
 			],
 			[
 			[
-				8,
-				cr.plugins_.Button.prototype.acts.SetEnabled,
-				null
-				,[
-				[
-					3,
-					0
-				]
-				]
-			]
-,			[
 				11,
 				cr.plugins_.FBComplete.prototype.acts.UserLogin,
 				null
 				,[
 				[
 					3,
-					1
+					0
 				]
 ,				[
 					1,
 					[
 						2,
-						"http://dewanto.github.com/purify/"
+						"http://dewanto.github.com/purify"
 					]
 				]
 ,				[
 					1,
 					[
 						2,
-						""
+						"http://dewanto.github.com/purify"
 					]
 				]
 ,				[
 					1,
 					[
 						2,
-						""
+						"ENTER GAME"
 					]
 				]
 ,				[
 					3,
-					4
+					3
 				]
 				]
 			]
@@ -13981,9 +13921,9 @@ cr.getProjectModel = function() { return [
 			[
 			[
 				11,
-				cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn,
+				cr.plugins_.FBComplete.prototype.cnds.IsLoggedIn,
 				null,
-				1,
+				0,
 				false,
 				false,
 				false
@@ -13991,13 +13931,38 @@ cr.getProjectModel = function() { return [
 			],
 			[
 			[
-				-1,
-				cr.system_object.prototype.acts.GoToLayout,
+				11,
+				cr.plugins_.FBComplete.prototype.acts.UserLogin,
 				null
 				,[
 				[
-					6,
-					"Game"
+					3,
+					0
+				]
+,				[
+					1,
+					[
+						2,
+						"http://dewanto.github.com/purify"
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						"http://dewanto.github.com/purify"
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						"GAME MASUK"
+					]
+				]
+,				[
+					3,
+					3
 				]
 				]
 			]
@@ -14034,41 +13999,9 @@ cr.getProjectModel = function() { return [
 					[
 						20,
 						11,
-						cr.plugins_.FBComplete.prototype.exps.UserPicture,
+						cr.plugins_.FBComplete.prototype.exps.UserFullName,
 						true,
 						null
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			[
-			[
-				11,
-				cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn,
-				null,
-				1,
-				false,
-				false,
-				false
-			]
-			],
-			[
-			[
-				9,
-				cr.plugins_.Text.prototype.acts.SetText,
-				null
-				,[
-				[
-					7,
-					[
-						2,
-						"Logged on APP"
 					]
 				]
 				]
