@@ -10793,436 +10793,6 @@ cr.plugins_.FBComplete = function(runtime)
 }());
 ;
 ;
-cr.plugins_.Facebook2 = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Facebook2.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	var oauth_url = 'https://www.facebook.com/dialog/oauth/';
-	var redirect_url = "";
-	var fbAppID = "";
-	var fbAppSecret = "";
-	var fbReady = false;
-	var fbLoggedIn = false;
-	var fbUserID = "";
-	var fbFullName = "";
-	var fbFirstName = "";
-	var fbLastName = "";
-	var fbBirthDay = "";
-	var fbGender = "";
-	var fbLocale = "";
-	var fbEmail = "";
-	var fbAccessToken = "";
-	var fbStatus = "";
-	var fbRuntime = null;
-	var fbInst = null;
-	var fbScore = 0;
-	var fbHiscoreName = "";
-	var fbHiscoreUserID = 0;
-	var fbRank = 0;
-	var fbCanPublishStream = false;
-	var fbCanPublishAction = false;
-	var fbCanPublishEmail = false;
-	var fbCanPublishBirthday = false;
-	var fbPerms = "";
-	function onFBLogin()
-	{
-		if (!fbLoggedIn)
-		{
-			fbLoggedIn = true;
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnLogIn, fbInst);
-			FB.api('/me', function(response) {
-				                        /*Basic Permissions needed*/
-							fbFullName = response["name"];
-							fbFirstName = response["first_name"];
-							fbLastName = response["last_name"];
-							fbLocale   = response["locale"];
-							fbGender = response["gender"];
-							/*Requires Email Permission*/
-							fbEmail = response["email"];
-							/*Requires Birthday permission*/
-							fbBirthDay = response["birthday"];
-							fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnNameAvailable, fbInst);
-						});
-		}
-	};
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-		if (this.runtime.isDomFree)
-		{
-			cr.logexport("[Construct 2] Facebook plugin not supported on this platform - the object will not be created");
-			return;
-		}
-		fbAppID = this.properties[0];
-		fbAppSecret = this.properties[1];
-		fbRuntime = this.runtime;
-		fbInst = this;
-		window.fbAsyncInit = function() {
-			var channelfile = '//' + location.hostname;
-			var pname = location.pathname;
-			if (pname.substr(pname.length - 1) !== '/')
-				pname = pname.substr(0, pname.lastIndexOf('/') + 1);
-			FB.init({
-			  "appId"      : fbAppID,
-			  "channelURL" : '//' + location.hostname + pname + 'channel.html',
-			  "status"     : true,
-			  "cookie"     : true,
-			  "oauth"      : true,
-			  "xfbml"      : false
-			});
-			fbReady = true;
-			FB.Event.subscribe('auth.login', function(response) {
-				fbStatus = response["status"];
-				fbUserID = response["authResponse"]["userID"];
-				fbAccessToken = response["authResponse"]["accessToken"];
-;
-				onFBLogin();
-			});
-			FB.Event.subscribe('auth.logout', function(response) {
-				if (fbLoggedIn)
-				{
-					fbLoggedIn = false;
-					fbFullName = "";
-					fbFirstName = "";
-					fbLastName = "";
-					fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnLogOut, fbInst);
-				}
-			});
-			FB.getLoginStatus(function(response) {
-				if(response["status"])
-				{
-				fbStatus = response["status"];
-				}
-				if (response["authResponse"])
-				{
-					fbStatus = response["status"];
-					fbUserID = response["authResponse"]["userID"];
-					fbAccessToken = response["authResponse"]["accessToken"];
-;
-					onFBLogin();
-				}
-			});
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnReady, fbInst);
-		};
-		if (fbAppID.length)
-		{
-			(function(d){
-				var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-				js = d.createElement('script'); js.id = id; js.async = true;
-				js.src = "//connect.facebook.net/en_US/all.js";
-				d.getElementsByTagName('head')[0].appendChild(js);
-			}(document));
-		}
-		else
-;
-	};
-	instanceProto.onLayoutChange = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		if (fbLoggedIn)
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnLogIn, fbInst);
-		if (fbFullName.length)
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnNameAvailable, fbInst);
-	};
-	function Cnds() {};
-	Cnds.prototype.IsReady = function ()
-	{
-		return fbReady;
-	};
-	Cnds.prototype.OnReady = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsLoggedIn = function ()
-	{
-		return fbLoggedIn;
-	};
-	Cnds.prototype.OnLogIn = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnLogOut = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnNameAvailable = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnUserTopScoreAvailable = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnHiscore = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnScoreSubmitted = function ()
-	{
-		return true;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.FBRedirect = function (red_secure, red_name,red_perm)
-	{
-		if (this.runtime.isDomFree || !fbReady)
-			return;
-		redirect_url = red_secure + '://apps.facebook.com/'+red_name+'/';
-		oauth_url += '?client_id='  + fbAppID;
-                oauth_url += '&redirect_uri=' + encodeURIComponent(redirect_url);
-                oauth_url += '&scope='+	red_perm;
-		window.top.location = oauth_url;
-	};
-	Acts.prototype.LogIn = function (perm_stream, perm_action, perm_email, perm_bday)
-	{
-		if (this.runtime.isDomFree || !fbReady)
-			return;
-		fbCanPublishStream = (perm_stream === 1);
-		fbCanPublishAction = (perm_action === 1);
-		fbCanPublishEmail  = (perm_email === 1);
-		fbCanPublishBirthday = (perm_bday === 1);
-		var perms = [];
-		if (fbCanPublishStream)
-			perms.push("publish_stream");
-		if (fbCanPublishAction)
-			perms.push("publish_actions");
-		if (fbCanPublishEmail)
-			perms.push("email");
-		if (fbCanPublishBirthday)
-			perms.push("user_birthday");
-		var newperms = perms.join();
-			fbPerms = newperms;
-			FB.login(function(response) {
-					if (response["authResponse"])
-						onFBLogin();
-				}, {scope: fbPerms});
-	};
-	Acts.prototype.LogOut = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		if (fbLoggedIn)
-			FB.logout(function(response) {});
-	};
-	Acts.prototype.PromptWallPost = function ()
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.ui({ "method": "feed" }, function(response) {
-				if (!response || response.error)
-					  console.error(response);
-			});
-	};
-	Acts.prototype.PromptToShareApp = function (name_, caption_, description_, picture_)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.ui({
-				"method": "feed",
-				"link": "http://apps.facebook.com/" + fbAppID + "/",
-				"picture": picture_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			  }, function(response) {
-				  if (!response || response.error)
-						  console.error(response);
-			});
-	};
-	Acts.prototype.PromptToShareLink = function (url_, name_, caption_, description_, picture_)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.ui({
-				"method": "feed",
-				"link": url_,
-				"picture": picture_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			  }, function(response) {
-					if (!response || response.error)
-						console.error(response);
-			});
-	};
-	Acts.prototype.PublishToWall = function (message_)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		var publish = {
-			"method": 'stream.publish',
-			"message": message_
-		};
-		FB.api('/me/feed', 'POST', publish, function(response) {
-				if (!response || response.error)
-					console.error(response);
-			});
-	};
-	Acts.prototype.PublishLink = function (message_, url_, name_, caption_, description_, picture_)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		var publish = {
-				"method": 'stream.publish',
-				"message": message_,
-				"link": url_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			};
-		if (picture_.length)
-			publish["picture"] = picture_;
-		FB.api('/me/feed', 'POST', publish, function(response) {
-				if (!response || response.error)
-					console.error(response);
-			});
-	};
-	Acts.prototype.PublishScore = function (score_)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.api('/' + fbUserID + '/scores', 'POST', { "score": Math.floor(score_), "access_token": fbAppID + "|" + fbAppSecret }, function(response) {
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnScoreSubmitted, fbInst);
-			if (!response || response.error)
-				console.error(response);
-	   });
-	};
-	Acts.prototype.RequestUserHiscore = function ()
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.api('/me/scores', 'GET', {}, function(response) {
-			fbScore = 0;
-			var arr = response["data"];
-			if (!arr)
-			{
-				console.error("Request for user hi-score failed: " + response);
-				return;
-			}
-			var i, len;
-			for (i = 0, len = arr.length; i < len; i++)
-			{
-				if (arr[i]["score"] > fbScore)
-					fbScore = arr[i]["score"];
-			}
-			fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnUserTopScoreAvailable, fbInst);
-			if (!response || response.error) {
-			  console.error(response);
-		    } else {
-;
-		    }
-		});
-	};
-	Acts.prototype.RequestHiscores = function (n)
-	{
-		if (this.runtime.isDomFree || !fbLoggedIn)
-			return;
-		FB.api('/' + fbAppID + '/scores', 'GET', {}, function(response) {
-			var arr = response["data"];
-			if (!arr)
-			{
-				console.error("Hi-scores request failed: " + response);
-				return;
-			}
-			arr.sort(function(a, b) {
-				return b["score"] - a["score"];
-			});
-			var i = 0, len = Math.min(arr.length, n);
-			for ( ; i < len; i++)
-			{
-				fbScore = arr[i]["score"];
-				fbHiscoreName = arr[i]["user"]["name"];
-				fbHiscoreUserID = arr[i]["user"]["id"];
-				fbRank = i + 1;
-				fbRuntime.trigger(cr.plugins_.Facebook2.prototype.cnds.OnHiscore, fbInst);
-			}
-			if (!response || response.error) {
-			  console.error(response);
-		    } else {
-;
-		    }
-		});
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.FullName = function (ret)
-	{
-		ret.set_string(fbFullName);
-	};
-	Exps.prototype.FirstName = function (ret)
-	{
-		ret.set_string(fbFirstName);
-	};
-	Exps.prototype.LastName = function (ret)
-	{
-		ret.set_string(fbLastName);
-	};
-	Exps.prototype.Score = function (ret)
-	{
-		ret.set_int(fbScore);
-	};
-	Exps.prototype.HiscoreName = function (ret)
-	{
-		ret.set_string(fbHiscoreName);
-	};
-	Exps.prototype.HiscoreUserID = function (ret)
-	{
-		ret.set_int(fbHiscoreUserID);
-	};
-	Exps.prototype.HiscoreRank = function (ret)
-	{
-		ret.set_int(fbRank);
-	};
-	Exps.prototype.UserID = function (ret)
-	{
-		ret.set_float(parseFloat(fbUserID));
-	};
-	Exps.prototype.BirthDay = function (ret)
-	{
-		ret.set_string(fbBirthDay);
-	};
-	Exps.prototype.Gender = function (ret)
-	{
-		ret.set_string(fbGender);
-	};
-	Exps.prototype.Locale = function (ret)
-	{
-		ret.set_string(fbLocale);
-	};
-	Exps.prototype.Email = function (ret)
-	{
-		ret.set_string(fbEmail);
-	};
-	Exps.prototype.AccessToken = function (ret)
-	{
-		ret.set_string(fbAccessToken);
-	};
-	Exps.prototype.Status = function (ret)
-	{
-		ret.set_string(fbStatus);
-	};
-	pluginProto.exps = new Exps();
-}());
-;
-;
 cr.plugins_.Keyboard = function(runtime)
 {
 	this.runtime = runtime;
@@ -13905,18 +13475,6 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.Facebook2,
-		true,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false
-	]
-,	[
 		cr.plugins_.FBComplete,
 		true,
 		false,
@@ -14113,22 +13671,6 @@ cr.getProjectModel = function() { return [
 	]
 ,	[
 		"t10",
-		cr.plugins_.Facebook2,
-		false,
-		0,
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		[]
-		,["137460773081284","5b706e98c67c17ee7e49ce07330d9c65"]
-	]
-,	[
-		"t11",
 		cr.plugins_.Button,
 		false,
 		0,
@@ -14143,7 +13685,7 @@ cr.getProjectModel = function() { return [
 		[]
 	]
 ,	[
-		"t12",
+		"t11",
 		cr.plugins_.FBComplete,
 		false,
 		0,
@@ -14156,7 +13698,7 @@ cr.getProjectModel = function() { return [
 		false,
 		false,
 		[]
-		,["77",1,0,0,1,0,1]
+		,["137460773081284",0,0,0,0,0,1]
 	]
 	],
 	[
@@ -14289,7 +13831,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[20, 19, 0, 136, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				11,
+				10,
 				[
 				],
 				[
@@ -14352,15 +13894,6 @@ cr.getProjectModel = function() { return [
 			null,
 			false,
 			[
-			[
-				10,
-				cr.plugins_.Facebook2.prototype.cnds.OnReady,
-				null,
-				1,
-				false,
-				false,
-				false
-			]
 			],
 			[
 			[
@@ -14393,29 +13926,6 @@ cr.getProjectModel = function() { return [
 			],
 			[
 			[
-				10,
-				cr.plugins_.Facebook2.prototype.acts.LogIn,
-				null
-				,[
-				[
-					3,
-					0
-				]
-,				[
-					3,
-					0
-				]
-,				[
-					3,
-					1
-				]
-,				[
-					3,
-					1
-				]
-				]
-			]
-,			[
 				8,
 				cr.plugins_.Button.prototype.acts.SetEnabled,
 				null
@@ -14423,6 +13933,42 @@ cr.getProjectModel = function() { return [
 				[
 					3,
 					0
+				]
+				]
+			]
+,			[
+				11,
+				cr.plugins_.FBComplete.prototype.acts.UserLogin,
+				null
+				,[
+				[
+					3,
+					0
+				]
+,				[
+					1,
+					[
+						2,
+						"http://dewanto.github.com/purify/"
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						""
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						""
+					]
+				]
+,				[
+					3,
+					2
 				]
 				]
 			]
@@ -14434,8 +13980,8 @@ cr.getProjectModel = function() { return [
 			false,
 			[
 			[
-				10,
-				cr.plugins_.Facebook2.prototype.cnds.OnLogIn,
+				11,
+				cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn,
 				null,
 				1,
 				false,
@@ -14468,8 +14014,8 @@ cr.getProjectModel = function() { return [
 			false,
 			[
 			[
-				10,
-				cr.plugins_.Facebook2.prototype.cnds.OnNameAvailable,
+				-1,
+				cr.system_object.prototype.cnds.OnLayoutStart,
 				null,
 				1,
 				false,
@@ -14487,8 +14033,8 @@ cr.getProjectModel = function() { return [
 					7,
 					[
 						20,
-						10,
-						cr.plugins_.Facebook2.prototype.exps.FullName,
+						11,
+						cr.plugins_.FBComplete.prototype.exps.UserFullName,
 						true,
 						null
 					]
@@ -14503,39 +14049,7 @@ cr.getProjectModel = function() { return [
 			false,
 			[
 			[
-				-1,
-				cr.system_object.prototype.cnds.OnLayoutStart,
-				null,
-				1,
-				false,
-				false,
-				false
-			]
-			],
-			[
-			[
 				10,
-				cr.plugins_.Facebook2.prototype.acts.RequestHiscores,
-				null
-				,[
-				[
-					0,
-					[
-						0,
-						10
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			[
-			[
-				11,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
@@ -14554,7 +14068,7 @@ cr.getProjectModel = function() { return [
 					7,
 					[
 						20,
-						12,
+						11,
 						cr.plugins_.FBComplete.prototype.exps.UserPicture,
 						true,
 						null
